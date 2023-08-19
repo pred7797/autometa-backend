@@ -1,3 +1,4 @@
+require('dotenv').config();
 const express = require('express');
 const mongoose = require('mongoose');
 const app = express();
@@ -9,11 +10,12 @@ const PORT = process.env.PORT || 3000;
 
 mongoose.set('strictQuery', true);
 // MongoDB connection
-mongoose.connect('mongodb+srv://prerakdarji03:prerakdarji@autometa.ixlm8cm.mongodb.net/SAKEC', {
+mongoose.connect(process.env.MONGO_DB_CONNECT, {
     useNewUrlParser: true,
     useUnifiedTopology: true,
 }, (error) => {
     if (!error) {
+        console.log(process.env.MONGO_DB_CONNECT);
         console.log("connected");
 
         app.post("/api/addStudent", async (req, res) => {
