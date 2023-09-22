@@ -1,44 +1,31 @@
-require('dotenv').config();
-const express = require('express');
-const mongoose = require('mongoose');
-const app = express();
-const models = require("./models/model")
-app.use(express.json());
-app.use(express.urlencoded({ extended: true }))
-const studentData = [];
-const PORT = process.env.PORT || 3000;
+const express = require('express')
+const morgan = require('morgan')
+const cors = require('cors')
+const connectDB = require('./config/db')
+const passport = require('passport')
+const bodyParser = require('body-parser')
+const routes = require('./routes/index')
+const mongoose = require('mongoose')
 
 mongoose.set('strictQuery', true);
-// MongoDB connection
-mongoose.connect(process.env.MONGO_DB_CONNECT, {
-    useNewUrlParser: true,
-    useUnifiedTopology: true,
-}, (error) => {
-    if (!error) {
-        console.log(process.env.MONGO_DB_CONNECT);
-        console.log("connected");
 
-        app.post("/api/addStudent", async (req, res) => {
-            console.log("result", req.body);
+connectDB()
 
-            let data = models(req.body);
-            try {
-                let dataToStore = await data.save();
-                res.status(200).json(dataToStore)
-            } catch (error) {
-                res.status(400).json({
-                    'status': error.message
-                })
-            }
-        })
+const app = express()
 
-    }
-    else {
-        console.log(error.message);
-    }
-});
+if (process.env.NODE_ENV === 'development') {
+    app.use(morgan('dev'))
+}
 
+app.use(cors())
+app.use(bodyParser.urlencoded({ extended: false }))
+app.use(bodyParser.json())
+app.use(routes)
+app.use(passport.initialize())
+require('./config/passport')(passport)
 
-app.listen(PORT, () => {
-    console.log(`Server is running on port ${PORT}`);
-});
+const router = express.Router();
+
+const PORT = process.env.PORT || 3001
+
+app.listen(PORT, console.log(`Server running in ${process.env.NODE_ENV} mode on port ${PORT}`))
