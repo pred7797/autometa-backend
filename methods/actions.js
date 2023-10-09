@@ -89,6 +89,11 @@ var functions = {
                     user.comparePassword(req.body.password, function (err, isMatch) {
                         if (isMatch && !err) {
                             var token = jwt.encode(user, config.secret)
+                            res.cookie('token', token, {
+                                httpOnly: true,
+                                secure: process.env.NODE_ENV === 'production',
+                                sameSite: 'strict',
+                            });
                             res.json({ success: true, token: token })
                         }
                         else {
@@ -108,6 +113,24 @@ var functions = {
         else {
             return res.json({ success: false, msg: 'No Headers' })
         }
+    },
+    authenticateTeacher: function (req, res) {
+        if (req.headers.authorization && req.headers.authorization.split(' ')[0] === 'Bearer') {
+            // console.log(req.headers.authorization);
+            var token = req.headers.authorization.split(' ')[1]
+            // console.log(token);
+            if (token !== 'undefined') {
+                var decodedtoken = jwt.decode(token, config.secret)
+                return res.json({ success: true, msg: decodedtoken.role })
+            } else {
+                // console.log('token undefined');
+                return res.json({ success: false, msg: 'No token' })
+            }
+        }
+        else {
+            return res.json({ success: false, msg: 'No Headers' })
+        }
+
     }
 }
 

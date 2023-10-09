@@ -28,5 +28,7 @@ router.post('/login',actions.login)
 //@route GET /getinfo
 router.get('/getinfo', actions.getinfo)
 
+router.get('/authenticateteacher', actions.authenticateTeacher)
+
 
 module.exports = router 
