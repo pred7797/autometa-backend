@@ -29,3 +29,17 @@ const router = express.Router();
 const PORT = process.env.PORT || 3001
 
 app.listen(PORT, console.log(`Server running in ${process.env.NODE_ENV} mode on port ${PORT}`))
+
+const io = require('socket.io')(3002, {
+    cors: {
+        origin: ['http://localhost:3000','*'],
+    },
+})
+
+io.on("connection", (socket) => {
+    console.log(socket.id);
+    socket.on('custom', message => {
+        console.log(message)
+        socket.broadcast.emit('custom', message)
+    })
+})
